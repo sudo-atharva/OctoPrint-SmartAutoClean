@@ -63,6 +63,32 @@ EJECT_DONE_MARKER = "AUTOFARM_EJECT_DONE"
 BED_POLL_INTERVAL = 5  # seconds
 BED_COOL_TIMEOUT = 20 * 60  # give up waiting for cooldown after this long
 
+# Built-in fallback so the printer profile dropdown is never empty, no
+# matter what goes wrong reading printer_profiles.yaml off disk (missing
+# file, permissions, bad install). This is the baseline; the on-disk file
+# (in the plugin data folder, editable by the user) overrides it when it
+# loads successfully.
+DEFAULT_PROFILES = {
+    "kobra2neo": {
+        "name": "Anycubic Kobra 2 Neo",
+        "bed_size": [220, 220],
+        "eject_z": 5.0,
+        "sweep_start": [15, 210],
+        "sweep_end": [15, 10],
+        "feedrate": 3000,
+        "bed_clear_temp": 45,
+    },
+    "generic": {
+        "name": "Generic (edit me)",
+        "bed_size": [220, 220],
+        "eject_z": 5.0,
+        "sweep_start": [15, 210],
+        "sweep_end": [15, 10],
+        "feedrate": 3000,
+        "bed_clear_temp": 45,
+    },
+}
+
 
 class AutoFarmPlugin(
     octoprint.plugin.SettingsPlugin,
@@ -73,7 +99,7 @@ class AutoFarmPlugin(
     octoprint.plugin.StartupPlugin,
 ):
     def __init__(self):
-        self._profiles = {}
+        self._profiles = dict(DEFAULT_PROFILES)
         self._cooldown_timer = None
         self._cooldown_started = None
         self._awaiting_action = None  # "eject" or "next" or "shutdown", or None
@@ -95,10 +121,13 @@ class AutoFarmPlugin(
         try:
             path = self._profiles_path()
             with open(path) as f:
-                self._profiles = yaml.safe_load(f) or {}
+                loaded = yaml.safe_load(f) or {}
+            if loaded:
+                self._profiles = loaded
         except Exception:
-            self._logger.exception("Could not load printer_profiles.yaml, using none")
-            self._profiles = {}
+            self._logger.exception(
+                "Could not load printer_profiles.yaml, keeping built-in defaults"
+            )
 
     def _current_profile(self):
         name = self._settings.get(["printer_profile"])

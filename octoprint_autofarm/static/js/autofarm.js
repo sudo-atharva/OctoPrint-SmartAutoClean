@@ -33,14 +33,28 @@ $(function () {
         // a time OctoPrint.simpleApiGet is actually usable yet.
         self.refreshStatus();
 
-        self.enabled = ko.pureComputed({
-            read: function () {
-                return self.settings.settings.plugins.autofarm.enabled();
-            },
-            write: function (v) {
-                self.settings.settings.plugins.autofarm.enabled(v);
-            },
-        });
+        // custom_bindings means every data-bind in our templates resolves
+        // against THIS viewmodel, not the raw settingsViewModel tree - so
+        // every settings field the templates reference needs a matching
+        // read/write property here, or it silently binds to nothing.
+        function settingField(name) {
+            return ko.pureComputed({
+                read: function () {
+                    return self.settings.settings.plugins.autofarm[name]();
+                },
+                write: function (v) {
+                    self.settings.settings.plugins.autofarm[name](v);
+                },
+            });
+        }
+
+        self.enabled = settingField("enabled");
+        self.auto_eject = settingField("auto_eject");
+        self.printer_profile = settingField("printer_profile");
+        self.bed_clear_check = settingField("bed_clear_check");
+        self.relay_mode = settingField("relay_mode");
+        self.relay_gpio_pin = settingField("relay_gpio_pin");
+        self.relay_active_low = settingField("relay_active_low");
 
         self.addToQueue = function () {
             var path = self.newQueuePath();
