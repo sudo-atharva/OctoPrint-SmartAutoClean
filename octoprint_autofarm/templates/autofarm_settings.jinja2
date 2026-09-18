@@ -1,0 +1,43 @@
+<form class="form-horizontal">
+    <div class="control-group">
+        <label class="checkbox">
+            <input type="checkbox" data-bind="checked: enabled"> Enable AutoFarm (autonomous queue)
+        </label>
+    </div>
+    <div class="control-group">
+        <label class="checkbox">
+            <input type="checkbox" data-bind="checked: auto_eject"> Auto-eject with gcode sweep (unchecked = notify and wait for you to remove part)
+        </label>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Printer profile</label>
+        <div class="controls">
+            <select data-bind="value: printer_profile, options: Object.keys({{ profiles|tojson }}), optionsText: function(k){ return {{ profiles|tojson }}[k].name; }"></select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Bed-clear check</label>
+        <div class="controls">
+            <label class="checkbox">
+                <input type="checkbox" data-bind="checked: bed_clear_check, enable: {{ has_cv2|tojson }}"> Confirm bed is clear (webcam) before starting next print
+            </label>
+            {% if not has_cv2 %}<span class="help-block">opencv-python not installed, this is disabled.</span>{% endif %}
+            <button class="btn" data-bind="click: setEmptyReference" {{ 'disabled' if not has_cv2 }}>Capture empty-bed reference now</button>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Relay power-off</label>
+        <div class="controls">
+            <select data-bind="value: relay_mode">
+                <option value="manual">Manual (notify me)</option>
+                <option value="gpio" {{ 'disabled' if not has_gpio }}>Raspberry Pi GPIO{{ ' (unavailable)' if not has_gpio }}</option>
+            </select>
+            <label>GPIO pin <input type="number" data-bind="value: relay_gpio_pin" style="width:60px" {{ 'disabled' if not has_gpio }}></label>
+            <label class="checkbox"><input type="checkbox" data-bind="checked: relay_active_low" {{ 'disabled' if not has_gpio }}> Active low</label>
+        </div>
+    </div>
+    <div class="control-group">
+        <button class="btn" data-bind="click: testEject">Test eject move</button>
+        <span class="help-block">Runs the sweep move now, no print required. Watch the printer.</span>
+    </div>
+</form>

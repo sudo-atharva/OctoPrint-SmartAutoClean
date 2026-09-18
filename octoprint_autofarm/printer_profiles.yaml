@@ -1,0 +1,30 @@
+# AutoFarm printer profiles.
+# Add an entry per printer, pick it in AutoFarm settings.
+# This file is copied to OctoPrint's plugin data folder on first run -
+# edit the COPY there (its path is shown in the AutoFarm settings tab),
+# not this one, so your edits survive a plugin update.
+#
+# eject_z: nozzle height (mm) during the sweep move. Keep it clear of the
+#   part's top and the bed - a few mm above the part is fine, do not use 0.
+# sweep_start / sweep_end: X/Y the nozzle travels between at eject_z,
+#   dragging the finished part with it. Tune on your own bed before
+#   trusting auto_eject unattended - use the "Test eject" button first.
+# bed_clear_temp: bed must cool to this (C) before eject/next print starts.
+
+kobra2neo:
+  name: "Anycubic Kobra 2 Neo"
+  bed_size: [220, 220]
+  eject_z: 5.0
+  sweep_start: [15, 210]
+  sweep_end: [15, 10]
+  feedrate: 3000
+  bed_clear_temp: 45
+
+generic:
+  name: "Generic (edit me)"
+  bed_size: [220, 220]
+  eject_z: 5.0
+  sweep_start: [15, 210]
+  sweep_end: [15, 10]
+  feedrate: 3000
+  bed_clear_temp: 45

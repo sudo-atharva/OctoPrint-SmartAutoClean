@@ -1,0 +1,55 @@
+<div id="autofarm_tab">
+    <div class="alert alert-info" data-bind="visible: notification() !== null">
+        <span data-bind="text: notification() && notification().text"></span>
+        <button class="btn btn-small" data-bind="visible: notification() && notification().needs_action, click: startNext">
+            Start Next / Confirm
+        </button>
+    </div>
+
+    <h4>Queue</h4>
+    <table class="table">
+        <tbody data-bind="foreach: queue">
+            <tr>
+                <td data-bind="text: path"></td>
+                <td><button class="btn btn-mini" data-bind="click: $parent.removeFromQueue.bind($parent, $index())">Remove</button></td>
+            </tr>
+        </tbody>
+    </table>
+    <p data-bind="visible: queue().length === 0">Queue is empty.</p>
+
+    <div class="input-append">
+        <input type="text" data-bind="value: newQueuePath" placeholder="path/to/file.gcode">
+        <button class="btn" data-bind="click: addToQueue">Add to queue</button>
+    </div>
+
+    <hr>
+    <h4>Detection test</h4>
+    <p>
+        <button class="btn" data-bind="click: testEject">Test eject move</button>
+        <button class="btn" data-bind="click: testBedClear">Test bed-clear check</button>
+    </p>
+    <div data-bind="visible: bedClearResult() !== null">
+        <p data-bind="visible: bedClearResult() && !bedClearResult().ok" class="text-error">
+            <span data-bind="text: bedClearResult() && bedClearResult().error"></span>
+        </p>
+        <div data-bind="visible: bedClearResult() && bedClearResult().ok">
+            <p>
+                <strong data-bind="text: bedClearResult() && (bedClearResult().clear ? 'CLEAR' : 'NOT CLEAR')"></strong>
+                &mdash; changed <span data-bind="text: bedClearResult() && (bedClearResult().ratio * 100).toFixed(1)"></span>%
+                of frame (threshold <span data-bind="text: bedClearResult() && (bedClearResult().threshold * 100).toFixed(1)"></span>%)
+            </p>
+            <table>
+                <tr>
+                    <td style="padding-right:10px">
+                        Live now<br>
+                        <img data-bind="attr: {src: bedClearResult() && bedClearResult().current_image}" style="max-width:280px">
+                    </td>
+                    <td>
+                        Empty-bed reference<br>
+                        <img data-bind="attr: {src: bedClearResult() && bedClearResult().reference_image}" style="max-width:280px">
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

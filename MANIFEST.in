@@ -1,0 +1,3 @@
+include octoprint_autofarm/printer_profiles.yaml
+recursive-include octoprint_autofarm/static *
+recursive-include octoprint_autofarm/templates *
