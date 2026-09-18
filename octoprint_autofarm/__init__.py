@@ -12,13 +12,18 @@ from octoprint.util import RepeatedTimer
 
 from . import logic
 
+CV2_IMPORT_ERROR = None
 try:
     import cv2
     import numpy as np
 
     HAS_CV2 = True
-except ImportError:
+except Exception as _e:
+    # Catch broadly, not just ImportError - on ARM, cv2 can be installed
+    # but fail to import over a missing system shared library (OSError),
+    # which ImportError alone would silently misreport as "not installed".
     HAS_CV2 = False
+    CV2_IMPORT_ERROR = f"{type(_e).__name__}: {_e}"
 
 try:
     import RPi.GPIO as GPIO
@@ -136,6 +141,7 @@ class AutoFarmPlugin(
         return {
             "has_cv2": HAS_CV2,
             "has_gpio": HAS_GPIO,
+            "cv2_import_error": CV2_IMPORT_ERROR,
             "profiles": self._profiles,
         }
 
@@ -200,6 +206,7 @@ class AutoFarmPlugin(
                 "printer_profile": self._settings.get(["printer_profile"]),
                 "has_cv2": HAS_CV2,
                 "has_gpio": HAS_GPIO,
+                "cv2_import_error": CV2_IMPORT_ERROR,
                 "stream_url": self._stream_url(),
             }
         )

@@ -21,7 +21,12 @@
             <label class="checkbox">
                 <input type="checkbox" data-bind="checked: bed_clear_check, enable: {{ plugin_autofarm_has_cv2|default(false)|tojson }}"> Confirm bed is clear (webcam) before starting next print
             </label>
-            {% if not plugin_autofarm_has_cv2 %}<span class="help-block">opencv-python not installed, this is disabled.</span>{% endif %}
+            {% if not plugin_autofarm_has_cv2 %}
+                <span class="help-block">
+                    opencv-python not available, this is disabled.
+                    {% if plugin_autofarm_cv2_import_error %}<br><code>{{ plugin_autofarm_cv2_import_error }}</code>{% endif %}
+                </span>
+            {% endif %}
             <button class="btn" data-bind="click: setEmptyReference" {{ 'disabled' if not plugin_autofarm_has_cv2 }}>Capture empty-bed reference now</button>
         </div>
     </div>

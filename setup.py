@@ -4,7 +4,7 @@ from setuptools import setup
 plugin_identifier = "autofarm"
 plugin_package = "octoprint_autofarm"
 plugin_name = "Smart Auto Clean"
-plugin_version = "0.1.7"
+plugin_version = "0.1.8"
 plugin_description = "Autonomous print queue: eject, bed-clear check, power off when idle"
 plugin_author = "Atharva"
 plugin_author_email = "coppertocode@gmail.com"
