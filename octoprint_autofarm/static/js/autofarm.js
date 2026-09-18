@@ -28,6 +28,10 @@ $(function () {
 
         self.onStartupComplete = self.refreshStatus;
         self.onTabChange = self.refreshStatus;
+        // Belt-and-suspenders: fetch immediately on construction too, so
+        // this doesn't depend on onStartupComplete/onTabChange firing at
+        // a time OctoPrint.simpleApiGet is actually usable yet.
+        self.refreshStatus();
 
         self.enabled = ko.pureComputed({
             read: function () {
