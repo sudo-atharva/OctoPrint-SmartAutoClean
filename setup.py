@@ -12,6 +12,7 @@ plugin_url = "https://github.com/sudo-atharva/OctoPrint-SmartAutoClean"
 plugin_license = "AGPLv3"
 
 plugin_requires = ["PyYAML"]
+plugin_additional_data = ["printer_profiles.yaml"]
 
 try:
     import octoprint_setuptools
@@ -35,6 +36,7 @@ setup_parameters = octoprint_setuptools.create_plugin_setup_parameters(
     url=plugin_url,
     license=plugin_license,
     requires=plugin_requires,
+    additional_data=plugin_additional_data,
 )
 
 setup(**setup_parameters)

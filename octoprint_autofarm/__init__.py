@@ -62,12 +62,13 @@ class AutoFarmPlugin(
         user_copy = os.path.join(self.get_plugin_data_folder(), "printer_profiles.yaml")
         if not os.path.exists(user_copy):
             bundled = os.path.join(os.path.dirname(__file__), "printer_profiles.yaml")
-            shutil.copy(bundled, user_copy)
+            if os.path.exists(bundled):
+                shutil.copy(bundled, user_copy)
         return user_copy
 
     def _load_profiles(self):
-        path = self._profiles_path()
         try:
+            path = self._profiles_path()
             with open(path) as f:
                 self._profiles = yaml.safe_load(f) or {}
         except Exception:
