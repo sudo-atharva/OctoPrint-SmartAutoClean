@@ -28,12 +28,14 @@ except (ImportError, RuntimeError):
     HAS_GPIO = False
 
 try:
-    # OctoPrint >=1.9. The classic flat `webcam.snapshot` setting was moved
-    # out to the classicwebcam plugin's own settings and is no longer at
-    # that path - this is the real, provider-agnostic way to get a snapshot
-    # URL regardless of which webcam plugin is providing it.
-    from octoprint.webcams import get_snapshot_webcam
+    # OctoPrint >=1.9. The classic flat `webcam.snapshot`/`webcam.stream`
+    # settings were moved out to the classicwebcam plugin's own settings
+    # and are no longer at that path - these are the real, provider-agnostic
+    # way to get snapshot/stream URLs regardless of which webcam plugin is
+    # providing them.
+    from octoprint.webcams import get_default_webcam, get_snapshot_webcam
 except ImportError:
+    get_default_webcam = None
     get_snapshot_webcam = None
 
 
@@ -198,6 +200,7 @@ class AutoFarmPlugin(
                 "printer_profile": self._settings.get(["printer_profile"]),
                 "has_cv2": HAS_CV2,
                 "has_gpio": HAS_GPIO,
+                "stream_url": self._stream_url(),
             }
         )
 
@@ -318,6 +321,18 @@ class AutoFarmPlugin(
         self._notify("Printer powered off.")
 
     # ---------- bed-clear check ----------
+
+    def _stream_url(self):
+        if get_default_webcam is not None:
+            try:
+                webcam = get_default_webcam()
+            except Exception:
+                webcam = None
+            if webcam is not None and webcam.config.compat is not None:
+                if webcam.config.compat.stream:
+                    return webcam.config.compat.stream
+        # Pre-1.9 OctoPrint fallback, classic flat setting.
+        return self._settings.global_get(["webcam", "stream"])
 
     def _snapshot_url(self):
         if get_snapshot_webcam is not None:

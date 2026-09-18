@@ -13,10 +13,21 @@ $(function () {
             return plugin ? plugin.queue() : [];
         });
 
-        self.streamUrl = ko.computed(function () {
-            var webcam = self.settings.settings.webcam;
-            return webcam && webcam.streamUrl ? webcam.streamUrl() : "";
-        });
+        // Fetched from our own status endpoint rather than read out of
+        // settingsViewModel's webcam tree - that structure has moved around
+        // between OctoPrint versions (webcams became plugin-provided in
+        // 1.9), whereas our own API resolves it server-side the same way
+        // core does and stays correct regardless.
+        self.streamUrl = ko.observable("");
+
+        self.refreshStatus = function () {
+            OctoPrint.simpleApiGet("autofarm").done(function (status) {
+                self.streamUrl(status.stream_url || "");
+            });
+        };
+
+        self.onStartupComplete = self.refreshStatus;
+        self.onTabChange = self.refreshStatus;
 
         self.enabled = ko.pureComputed({
             read: function () {
