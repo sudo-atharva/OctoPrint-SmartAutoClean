@@ -6,6 +6,11 @@
         </button>
     </div>
 
+    <div data-bind="visible: streamUrl()">
+        <img data-bind="attr: {src: streamUrl}" style="width:100%; max-width:640px; display:block">
+    </div>
+    <p data-bind="visible: !streamUrl()" class="muted">No webcam stream configured (Settings &gt; Webcam &amp; Timelapse).</p>
+
     <h4>Queue</h4>
     <table class="table">
         <tbody data-bind="foreach: queue">

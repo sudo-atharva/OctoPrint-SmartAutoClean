@@ -13,6 +13,11 @@ $(function () {
             return plugin ? plugin.queue() : [];
         });
 
+        self.streamUrl = ko.computed(function () {
+            var webcam = self.settings.settings.webcam;
+            return webcam && webcam.streamUrl ? webcam.streamUrl() : "";
+        });
+
         self.enabled = ko.pureComputed({
             read: function () {
                 return self.settings.settings.plugins.autofarm.enabled();
