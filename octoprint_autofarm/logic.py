@@ -7,15 +7,20 @@ here would crash plugin load entirely on any install without numpy.
 """
 
 
-def diff_ratio(current, reference, pixel_threshold=30):
-    """Fraction of pixels that changed between two same-shape BGR arrays."""
+def diff_mask(current, reference, pixel_threshold=30):
+    """2D boolean mask of pixels that changed between two same-shape BGR arrays."""
     import numpy as np
 
     diff = np.abs(current.astype(int) - reference.astype(int))
     if diff.ndim == 3:
         diff = diff.mean(axis=2)
-    changed = np.count_nonzero(diff > pixel_threshold)
-    return changed / diff.size
+    return diff > pixel_threshold
+
+
+def diff_ratio(current, reference, pixel_threshold=30):
+    """Fraction of pixels that changed between two same-shape BGR arrays."""
+    mask = diff_mask(current, reference, pixel_threshold)
+    return float(mask.sum()) / mask.size
 
 
 def bed_is_clear(current, reference, pixel_threshold=30, ratio_threshold=0.02):

@@ -27,11 +27,29 @@ try:
 except (ImportError, RuntimeError):
     HAS_GPIO = False
 
+try:
+    # OctoPrint >=1.9. The classic flat `webcam.snapshot` setting was moved
+    # out to the classicwebcam plugin's own settings and is no longer at
+    # that path - this is the real, provider-agnostic way to get a snapshot
+    # URL regardless of which webcam plugin is providing it.
+    from octoprint.webcams import get_snapshot_webcam
+except ImportError:
+    get_snapshot_webcam = None
+
+
 def _to_data_uri(frame):
     ok, buf = cv2.imencode(".jpg", frame)
     if not ok:
         raise RuntimeError("could not encode image")
     return "data:image/jpeg;base64," + base64.b64encode(buf).decode("ascii")
+
+
+def _highlight_diff(current, reference):
+    """Current frame with changed-vs-reference pixels tinted red - "what it sees"."""
+    mask = logic.diff_mask(current, reference)
+    highlighted = current.copy()
+    highlighted[mask] = (0, 0, 255)  # BGR red
+    return cv2.addWeighted(highlighted, 0.6, current, 0.4, 0)
 
 
 EJECT_DONE_MARKER = "AUTOFARM_EJECT_DONE"
@@ -301,8 +319,20 @@ class AutoFarmPlugin(
 
     # ---------- bed-clear check ----------
 
+    def _snapshot_url(self):
+        if get_snapshot_webcam is not None:
+            try:
+                webcam = get_snapshot_webcam()
+            except Exception:
+                webcam = None
+            if webcam is not None and webcam.config.compat is not None:
+                if webcam.config.compat.snapshot:
+                    return webcam.config.compat.snapshot
+        # Pre-1.9 OctoPrint fallback, classic flat setting.
+        return self._settings.global_get(["webcam", "snapshot"])
+
     def _grab_snapshot(self):
-        url = self._settings.global_get(["webcam", "snapshot"])
+        url = self._snapshot_url()
         if not url:
             return None
         with urllib.request.urlopen(url, timeout=10) as resp:
@@ -363,6 +393,7 @@ class AutoFarmPlugin(
             "threshold": threshold,
             "current_image": _to_data_uri(current),
             "reference_image": _to_data_uri(reference),
+            "detected_image": _to_data_uri(_highlight_diff(current, reference)),
         }
 
     # ---------- notify ----------

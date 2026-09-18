@@ -28,7 +28,7 @@
     </div>
 
     <hr>
-    <h4>Detection test</h4>
+    <h4>What it sees</h4>
     <p>
         <button class="btn" data-bind="click: testEject">Test eject move</button>
         <button class="btn" data-bind="click: testBedClear">Test bed-clear check</button>
@@ -45,6 +45,10 @@
             </p>
             <table>
                 <tr>
+                    <td style="padding-right:10px">
+                        Detected (red = changed vs empty bed)<br>
+                        <img data-bind="attr: {src: bedClearResult() && bedClearResult().detected_image}" style="max-width:280px">
+                    </td>
                     <td style="padding-right:10px">
                         Live now<br>
                         <img data-bind="attr: {src: bedClearResult() && bedClearResult().current_image}" style="max-width:280px">
