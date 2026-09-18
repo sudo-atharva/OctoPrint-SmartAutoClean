@@ -153,8 +153,17 @@ class AutoFarmPlugin(
             self._save_reference_snapshot()
         elif command == "test_eject":
             profile = self._current_profile()
-            if profile:
+            if not profile:
+                wanted = self._settings.get(["printer_profile"])
+                self._notify(
+                    f"No printer profile named '{wanted}' loaded, check printer_profiles.yaml.",
+                    True,
+                )
+            elif not self._printer.is_operational():
+                self._notify("Printer isn't connected, can't send the eject move.", True)
+            else:
                 self._send_eject_gcode(profile)
+                self._notify("Eject move sent.")
         elif command == "check_bed_clear":
             return flask.jsonify(self._bed_clear_preview())
 
